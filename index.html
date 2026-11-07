@@ -12,7 +12,7 @@
     .container { display: flex; flex-wrap: wrap; min-height: calc(100vh - 60px); }
     
     /* Zijbalk Navigatie */
-    nav { width: 220px; background: #34495e; padding: 20px 0; }
+    nav { width: 200px; background: #34495e; padding: 20px 0; }
     nav button { width: 100%; padding: 15px 20px; border: none; background: none; color: #ecf0f1; text-align: left; font-size: 16px; cursor: pointer; transition: 0.3s; border-left: 4px solid transparent; }
     nav button:hover, nav button.active { background: #1abc9c; color: white; font-weight: bold; border-left-color: #e74c3c; }
 
@@ -21,18 +21,14 @@
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
     
-    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+    .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
     .card h3 { margin-top: 0; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; color: #2c3e50; }
 
-    /* Formulier Stijlen */
-    .form-group { margin-bottom: 15px; }
-    .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
-    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
-    .btn-submit { width: 100%; padding: 12px; background: #27ae60; color: white; border: none; border-radius: 4px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    .btn-submit:hover { background: #219150; }
+    /* iFrame voor jouw eigen webapps */
+    iframe { width: 100%; height: 650px; border: 1px solid #ddd; border-radius: 6px; }
 
-    /* Tabel Stijlen */
-    .table-wrapper { overflow-x: auto; max-height: 500px; }
+    /* Tabel Stijlen voor het overzicht */
+    .table-wrapper { overflow-x: auto; max-height: 600px; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border: 1px solid #e0e0e0; padding: 10px; text-align: left; font-size: 14px; }
     th { background: #f8f9fa; position: sticky; top: 0; }
@@ -44,7 +40,6 @@
     .uf-green { background-color: #d4edda !important; }
     
     .status-msg { margin-top: 10px; font-weight: bold; color: #e67e22; }
-    .hidden { display: none; }
   </style>
 </head>
 <body>
@@ -54,7 +49,7 @@
   </header>
 
   <div class="container">
-    <!-- Navigatie tussen de 4 databases -->
+    <!-- Zijbalk om te wisselen tussen de 4 onderdelen -->
     <nav>
       <button onclick="wisselOnderdeel('dialyse')" id="btn-dialyse" class="active">Dialyse</button>
       <button onclick="wisselOnderdeel('vervoer')" id="btn-vervoer">Vervoer</button>
@@ -66,103 +61,13 @@
       <h2 id="sectieTitel">Dialyse Beheer</h2>
       
       <div class="grid">
-        <!-- FORMULIEREN SECTIE -->
+        <!-- LINKS: JOUW EIGEN WEBAPP IN IFRAME -->
         <div class="card">
-          <h3>Nieuwe Invoer</h3>
-
-          <!-- Formulier 1: Dialyse -->
-          <form id="form-dialyse" onsubmit="verzendData(event, 'dialyse')">
-            <div class="form-group">
-              <label>Datum:</label>
-              <input type="date" id="dialyse-datum" required>
-            </div>
-            <div class="form-group">
-              <label>Voor-gewicht (kg):</label>
-              <input type="number" step="0.1" id="dialyse-voor-gewicht" placeholder="bijv. 111.5" required>
-            </div>
-            <div class="form-group">
-              <label>Bloeddruk Voor:</label>
-              <input type="text" id="dialyse-bp-voor" placeholder="bijv. 130/80">
-            </div>
-            <div class="form-group">
-              <label>Bloeddruk Na:</label>
-              <input type="text" id="dialyse-bp-na" placeholder="bijv. 125/75">
-            </div>
-            <div class="form-group">
-              <label>UF Advies / Onttrekking (L):</label>
-              <input type="number" step="0.1" id="dialyse-uf" placeholder="bijv. 4.2">
-            </div>
-            <button type="submit" class="btn-submit">Dialyse Data Opslaan</button>
-          </form>
-
-          <!-- Formulier 2: Vervoer -->
-          <form id="form-vervoer" class="hidden" onsubmit="verzendData(event, 'vervoer')">
-            <div class="form-group">
-              <label>Datum:</label>
-              <input type="date" id="vervoer-datum" required>
-            </div>
-            <div class="form-group">
-              <label>Rit Type:</label>
-              <select id="vervoer-type">
-                <option value="Dialyse Centrum">Dialyse Centrum</option>
-                <option value="Ziekenhuis">Ziekenhuis</option>
-                <option value="Privé / Overig">Privé / Overig</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Ophaaltijd:</label>
-              <input type="time" id="vervoer-tijd">
-            </div>
-            <div class="form-group">
-              <label>Opmerkingen / Taxi bedrijf:</label>
-              <input type="text" id="vervoer-note" placeholder="bijv. Valys / Regiotaxi">
-            </div>
-            <button type="submit" class="btn-submit">Vervoer Opslaan</button>
-          </form>
-
-          <!-- Formulier 3: Eten -->
-          <form id="form-eten" class="hidden" onsubmit="verzendData(event, 'eten')">
-            <div class="form-group">
-              <label>Datum & Tijd:</label>
-              <input type="datetime-local" id="eten-datum" required>
-            </div>
-            <div class="form-group">
-              <label>Maaltijd:</label>
-              <select id="eten-maaltijd">
-                <option value="Ontbijt">Ontbijt</option>
-                <option value="Lunch">Lunch</option>
-                <option value="Diner">Diner</option>
-                <option value="Tussendoortje">Tussendoortje</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Omschrijving Eten:</label>
-              <textarea id="eten-omschrijving" rows="3" placeholder="Wat heb je gegeten?" required></textarea>
-            </div>
-            <button type="submit" class="btn-submit">Eten Opslaan</button>
-          </form>
-
-          <!-- Formulier 4: Drinken -->
-          <form id="form-drinken" class="hidden" onsubmit="verzendData(event, 'drinken')">
-            <div class="form-group">
-              <label>Datum & Tijd:</label>
-              <input type="datetime-local" id="drinken-datum" required>
-            </div>
-            <div class="form-group">
-              <label>Type Drinken:</label>
-              <input type="text" id="drinken-type" placeholder="bijv. Water, Koffie, Thee" required>
-            </div>
-            <div class="form-group">
-              <label>Hoeveelheid (ml):</label>
-              <input type="number" id="drinken-ml" placeholder="bijv. 250" required>
-            </div>
-            <button type="submit" class="btn-submit">Drinken Opslaan</button>
-          </form>
-
-          <div id="formStatus" class="status-msg"></div>
+          <h3>Invoeren</h3>
+          <iframe id="appFrame" src="https://luuk57.github.io/Dialyseformulier/"></iframe>
         </div>
 
-        <!-- OVERZICHT (DATABASE) SECTIE -->
+        <!-- RECHTS: OVERZICHT UIT DE GOOGLE SHEET -->
         <div class="card">
           <h3>Live Database Overzicht</h3>
           <div id="tableStatus" class="status-msg">Data ophalen...</div>
@@ -178,39 +83,34 @@
   </div>
 
   <script>
-    // PLAK HIER JOUW GEPUBLICEERDE APPS SCRIPT WEB APP URL
+    // PLAK HIER JOUW APPS SCRIPT WEB APP URL
     const API_URL = "VUL_HIER_JOUW_APPS_SCRIPT_WEB_APP_URL_IN";
-    let actiefOnderdeel = 'dialyse';
 
-    // Vandaag standaard instellen op datumvelden
-    document.addEventListener("DOMContentLoaded", () => {
-      const vandaag = new Date().toISOString().split('T')[0];
-      document.getElementById('dialyse-datum').value = vandaag;
-      document.getElementById('vervoer-datum').value = vandaag;
-    });
+    // HIER STAAN DE LINKS NAAR JOUW WEBAPPS (Jouw Dialyse-link staat er al in!)
+    const APPS = {
+      dialyse: "https://luuk57.github.io/Dialyseformulier/",
+      vervoer: "vervoer_form.html", // Pas aan wanneer je de vervoer-link hebt
+      eten:    "eten_form.html",    // Pas aan wanneer je de eten-link hebt
+      drinken: "drinken_form.html"  // Pas aan wanneer je de drinken-link hebt
+    };
 
-    // Schakelen tussen de 4 formulieren en overzichten
+    // Schakelen tussen de 4 onderdelen
     function wisselOnderdeel(target) {
-      actiefOnderdeel = target;
-      
       // Update titel & knoppen
       document.getElementById('sectieTitel').innerText = `${target.charAt(0).toUpperCase() + target.slice(1)} Beheer`;
       document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
       document.getElementById(`btn-${target}`).classList.add('active');
 
-      // Toon het juiste formulier
-      ['dialyse', 'vervoer', 'eten', 'drinken'].forEach(f => {
-        document.getElementById(`form-${f}`).classList.add('hidden');
-      });
-      document.getElementById(`form-${target}`).classList.remove('hidden');
+      // 1. Laad jouw eigen webapp in de iframe aan de linkerkant
+      document.getElementById('appFrame').src = APPS[target];
 
-      // Data ophalen voor het gekozen onderdeel
+      // 2. Haal het overzicht uit de Google Sheet op voor de rechterkant
       laadDatabaseData(target);
     }
 
     // Data ophalen uit Google Sheets
     async function laadDatabaseData(target) {
-      document.getElementById('tableStatus').innerText = `Laden van ${target}...`;
+      document.getElementById('tableStatus').innerText = `Laden van overzicht ${target}...`;
       document.getElementById('dataTable').style.display = 'none';
 
       try {
@@ -250,10 +150,9 @@
       for (let i = 1; i < rows.length; i++) {
         let rowClass = "";
         
-        // Specifieke UF Kleurcodering voor Dialyse Data
+        // UF Kleurcodering als we op het Dialyse tabblad zitten
         if (target === 'dialyse') {
-          // Stel dat UF in de 5e kolom staat (index 4)
-          const ufValue = parseFloat(rows[i][4]);
+          const ufValue = parseFloat(rows[i][4]); // Controleert de 5e kolom op UF waarde
           if (!isNaN(ufValue)) {
             if (ufValue >= 4.5) rowClass = "uf-red";
             else if (ufValue >= 4.0) rowClass = "uf-orange";
@@ -268,69 +167,6 @@
       }
 
       document.getElementById('dataTable').style.display = 'table';
-    }
-
-    // Formulier verzenden naar Google Sheets
-    async function verzendData(event, target) {
-      event.preventDefault();
-      const statusDiv = document.getElementById('formStatus');
-      statusDiv.innerText = "Opslaan in Google Sheet...";
-
-      let rowData = [];
-
-      // Data verzamelen afhankelijk van het actieve formulier
-      if (target === 'dialyse') {
-        rowData = [
-          document.getElementById('dialyse-datum').value,
-          document.getElementById('dialyse-voor-gewicht').value,
-          document.getElementById('dialyse-bp-voor').value,
-          document.getElementById('dialyse-bp-na').value,
-          document.getElementById('dialyse-uf').value
-        ];
-      } else if (target === 'vervoer') {
-        rowData = [
-          document.getElementById('vervoer-datum').value,
-          document.getElementById('vervoer-type').value,
-          document.getElementById('vervoer-tijd').value,
-          document.getElementById('vervoer-note').value
-        ];
-      } else if (target === 'eten') {
-        rowData = [
-          document.getElementById('eten-datum').value,
-          document.getElementById('eten-maaltijd').value,
-          document.getElementById('eten-omschrijving').value
-        ];
-      } else if (target === 'drinken') {
-        rowData = [
-          document.getElementById('drinken-datum').value,
-          document.getElementById('drinken-type').value,
-          document.getElementById('drinken-ml').value
-        ];
-      }
-
-      try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify({ target: target, rowData: rowData })
-        });
-        
-        const result = await response.json();
-
-        if (result.status === "success") {
-          statusDiv.innerText = "✅ Succesvol opgeslagen!";
-          document.getElementById(`form-${target}`).reset();
-          
-          // Direct de overzichtstabel vernieuwen met de nieuwe rij
-          setTimeout(() => {
-            statusDiv.innerText = "";
-            laadDatabaseData(target);
-          }, 1000);
-        } else {
-          statusDiv.innerText = "❌ Fout bij opslaan: " + result.message;
-        }
-      } catch (err) {
-        statusDiv.innerText = "❌ Verbindingsfout bij opslaan.";
-      }
     }
 
     // Automatisch starten met Dialyse bij het openen van de pagina
