@@ -20,7 +20,7 @@
     @media (max-width: 900px) { .content-section { grid-template-columns: 1fr; } }
     
     .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    iframe { width: 100%; height: 400px; border: 1px solid #ddd; border-radius: 6px; }
+    iframe { width: 100%; height: 600px; border: 1px solid #ddd; border-radius: 6px; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
     th, td { border: 1px solid #e0e0e0; padding: 10px; text-align: left; }
     th { background: #f8f9fa; }
@@ -46,13 +46,13 @@
       <h2 id="titel">Dialyse Overzicht & Invoer</h2>
       
       <div class="content-section">
-        <!-- Links: Bestaand Formulier via iframe -->
+        <!-- Links: Jouw Dialyseformulier in het iframe -->
         <div class="card">
           <h3>Invoeren</h3>
           <iframe id="formFrame" src="https://luuk57.github.io/Dialyseformulier/"></iframe>
         </div>
 
-        <!-- Rechts: Live Overzicht uit Google Sheet -->
+        <!-- Rechts: Live Overzicht uit de Dialyse Google Sheet -->
         <div class="card">
           <h3>Overzicht (Database)</h3>
           <div id="status">Laden...</div>
@@ -69,12 +69,12 @@
     // Jouw centrale Google Apps Script Web App URL
     const API_URL = "VUL_HIER_JOUW_APPS_SCRIPT_WEB_APP_URL_IN";
 
-    // Paden naar jouw bestaande HTML-formulieren op GitHub
+    // URLs van je formulieren (inclusief jouw live Dialyseformulier)
     const FORM_URLS = {
-      dialyse: "dialyse_form.html",  // Vul hier de bestandsnaam of URL van je bestaande formulier in
-      vervoer: "vervoer_form.html",
-      eten:    "eten_form.html",
-      drinken: "drinken_form.html"
+      dialyse: "https://luuk57.github.io/Dialyseformulier/",
+      vervoer: "vervoer_form.html", // Pas aan naar jouw URL voor Vervoer wanneer klaar
+      eten:    "eten_form.html",    // Pas aan naar jouw URL voor Eten
+      drinken: "drinken_form.html"  // Pas aan naar jouw URL voor Drinken
     };
 
     let huidigeTarget = 'dialyse';
@@ -87,10 +87,10 @@
       document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
       document.getElementById(`btn-${target}`).classList.add('active');
 
-      // Update Formulier iFrame
+      // Update Formulier iFrame src met de juiste link
       document.getElementById('formFrame').src = FORM_URLS[target];
 
-      // Haal Overzicht Data op
+      // Haal Overzicht Data op uit Google Sheets
       document.getElementById('status').innerText = `Gegevens ophalen voor ${target}...`;
       document.getElementById('dataTable').style.display = 'none';
 
@@ -137,7 +137,7 @@
       document.getElementById('dataTable').style.display = 'table';
     }
 
-    // Automatisch starten met Dialyse bij het openen van de pagina
+    // Automatisch starten bij het openen van de pagina
     laadDashboard('dialyse');
   </script>
 </body>
