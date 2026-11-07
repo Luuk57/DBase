@@ -24,13 +24,13 @@
     .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
     .card h3 { margin-top: 0; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; color: #2c3e50; }
 
-    /* iFrame voor jouw eigen webapps */
+    /* iFrame voor je eigen webapp */
     iframe { width: 100%; height: 650px; border: 1px solid #ddd; border-radius: 6px; }
 
     /* Tabel Stijlen voor het overzicht */
     .table-wrapper { overflow-x: auto; max-height: 600px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #e0e0e0; padding: 10px; text-align: left; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+    th, td { border: 1px solid #e0e0e0; padding: 8px; text-align: left; white-space: nowrap; }
     th { background: #f8f9fa; position: sticky; top: 0; }
     tr:nth-child(even) { background-color: #f9f9f9; }
 
@@ -61,13 +61,13 @@
       <h2 id="sectieTitel">Dialyse Beheer</h2>
       
       <div class="grid">
-        <!-- LINKS: JOUW EIGEN WEBAPP IN IFRAME -->
+        <!-- LINKS: JOUW DIALYSEFORMULIER WEBAPP -->
         <div class="card">
           <h3>Invoeren</h3>
           <iframe id="appFrame" src="https://luuk57.github.io/Dialyseformulier/"></iframe>
         </div>
 
-        <!-- RECHTS: OVERZICHT UIT DE GOOGLE SHEET -->
+        <!-- RECHTS: OVERZICHT UIT GOOGLE SHEETS -->
         <div class="card">
           <h3>Live Database Overzicht</h3>
           <div id="tableStatus" class="status-msg">Data ophalen...</div>
@@ -86,29 +86,26 @@
     // PLAK HIER JOUW APPS SCRIPT WEB APP URL
     const API_URL = "VUL_HIER_JOUW_APPS_SCRIPT_WEB_APP_URL_IN";
 
-    // HIER STAAN DE LINKS NAAR JOUW WEBAPPS (Jouw Dialyse-link staat er al in!)
+    // LINKS NAAR JOUW WEBAPPS
     const APPS = {
       dialyse: "https://luuk57.github.io/Dialyseformulier/",
-      vervoer: "vervoer_form.html", // Pas aan wanneer je de vervoer-link hebt
-      eten:    "eten_form.html",    // Pas aan wanneer je de eten-link hebt
-      drinken: "drinken_form.html"  // Pas aan wanneer je de drinken-link hebt
+      vervoer: "vervoer_form.html",
+      eten:    "eten_form.html",
+      drinken: "drinken_form.html"
     };
 
-    // Schakelen tussen de 4 onderdelen
     function wisselOnderdeel(target) {
-      // Update titel & knoppen
       document.getElementById('sectieTitel').innerText = `${target.charAt(0).toUpperCase() + target.slice(1)} Beheer`;
       document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
       document.getElementById(`btn-${target}`).classList.add('active');
 
-      // 1. Laad jouw eigen webapp in de iframe aan de linkerkant
+      // 1. Laad jouw webapp via iframe
       document.getElementById('appFrame').src = APPS[target];
 
-      // 2. Haal het overzicht uit de Google Sheet op voor de rechterkant
+      // 2. Haal de Sheet-data op
       laadDatabaseData(target);
     }
 
-    // Data ophalen uit Google Sheets
     async function laadDatabaseData(target) {
       document.getElementById('tableStatus').innerText = `Laden van overzicht ${target}...`;
       document.getElementById('dataTable').style.display = 'none';
@@ -124,11 +121,10 @@
           document.getElementById('tableStatus').innerText = "Fout bij ophalen: " + result.message;
         }
       } catch (err) {
-        document.getElementById('tableStatus').innerText = "Kan geen verbinding maken met Google Sheets.";
+        document.getElementById('tableStatus').innerText = "Kan geen verbinding maken met Google Sheets. Controleer API_URL.";
       }
     }
 
-    // Tabel genereren
     function toonTabel(rows, target) {
       const head = document.getElementById('tableHead');
       const body = document.getElementById('tableBody');
@@ -146,13 +142,18 @@
       headHtml += "</tr>";
       head.innerHTML = headHtml;
 
+      // Zoek de index van de kolom "UF advies" voor kleurcodering
+      let ufAdviesIndex = -1;
+      if (target === 'dialyse' && rows[0]) {
+        ufAdviesIndex = rows[0].findIndex(col => col.toString().toLowerCase().includes('uf advies'));
+      }
+
       // Data rijen vullen
       for (let i = 1; i < rows.length; i++) {
         let rowClass = "";
         
-        // UF Kleurcodering als we op het Dialyse tabblad zitten
-        if (target === 'dialyse') {
-          const ufValue = parseFloat(rows[i][4]); // Controleert de 5e kolom op UF waarde
+        if (target === 'dialyse' && ufAdviesIndex !== -1) {
+          const ufValue = parseFloat(rows[i][ufAdviesIndex]);
           if (!isNaN(ufValue)) {
             if (ufValue >= 4.5) rowClass = "uf-red";
             else if (ufValue >= 4.0) rowClass = "uf-orange";
@@ -161,7 +162,11 @@
         }
 
         let bodyHtml = `<tr class="${rowClass}">`;
-        rows[i].forEach(cell => bodyHtml += `<td>${cell}</td>`);
+        rows[i].forEach(cell => {
+          // Formatteer eventuele datum-objecten of lege cellen netjes
+          let celInhoud = cell !== null && cell !== undefined ? cell : "";
+          bodyHtml += `<td>${celInhoud}</td>`;
+        });
         bodyHtml += "</tr>";
         body.innerHTML += bodyHtml;
       }
@@ -169,7 +174,7 @@
       document.getElementById('dataTable').style.display = 'table';
     }
 
-    // Automatisch starten met Dialyse bij het openen van de pagina
+    // Starten bij het openen van de pagina
     wisselOnderdeel('dialyse');
   </script>
 </body>
